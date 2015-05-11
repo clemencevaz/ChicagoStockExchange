@@ -80,14 +80,14 @@ plateau_depart(P) :-
 	initPlateau(P).
 	
 boucle_menu:-menu, !.
-menu:-nl, repeat, write('1. Afficher plateau'),nl,
+menu:-nl, write('1. Afficher plateau'),nl,
 		  write('2. Initialiser plateau'),nl,
 		  write('3. Commencer partie'),nl,
 		  write('4. Quitter'),nl,
 		  write('Entrer un choix : '),
-		  read(Choix),Choix>0,Choix<4,appel(Choix),
-		  Choix=4, !.
-appel(1):- afficher_plateau(p), !.
-appel(2):- plateau_depart(p),!.
+		  read(Choix),Choix>0,Choix=<4, appel(Choix).
+
+appel(1):- afficher_plateau(P), !.
+appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
