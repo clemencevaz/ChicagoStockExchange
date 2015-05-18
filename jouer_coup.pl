@@ -24,5 +24,3 @@ length(M,L),
 
 getTrader(P, T),
 Res is (C+T) mod L.
-
-[[M],[B],[Pos],[R1],[R2]].
