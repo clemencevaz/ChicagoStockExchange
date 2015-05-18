@@ -71,23 +71,22 @@ getReserveJ2(P, R) :-
 	nth1(5, P, R).
 
 %Initialisation du plateau de type [Marche, Bourse, Trader, [Reserve J1], [Reserve J2]])
-initPlateau([Marche, Bourse, Trader, [], []]) :-
+plateau_depart([Marche, Bourse, Trader, [], []]) :-
 	initMarche(Marche),
 	initBourse(Bourse),
 	initTrader(Trader).
-	
-plateau_depart(P) :-
-	initPlateau(P).
-	
-boucle_menu:-menu, !.
-menu:-nl, write('1. Afficher plateau'),nl,
-		  write('2. Initialiser plateau'),nl,
-		  write('3. Commencer partie'),nl,
-		  write('4. Quitter'),nl,
-		  write('Entrer un choix : '),
-		  read(Choix),Choix>0,Choix=<4, appel(Choix).
 
-appel(1):- afficher_plateau(P), !.
-appel(2):- plateau_depart(P), write(P), !.
+
+
+boucle_menu_depart:-menu_depart, !.
+menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
+write('2. Partie contre un bot'),nl,
+write('3. Partie bot contre bot'),nl,
+write('4. Quitter'),nl,
+write('Entrer un choix : '),
+read(Choix),Choix>0,Choix=<4, appel(Choix).
+
+appel(1):- plateau_depart(P), !.
+appel(2):- , !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
