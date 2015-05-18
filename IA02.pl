@@ -1,3 +1,19 @@
+/*_________________MENU DE DEPART_________________ */
+boucle_menu_depart:-menu_depart, !.
+menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
+write('2. Partie contre un bot'),nl,
+write('3. Partie bot contre bot'),nl,
+write('4. Quitter'),nl,
+write('Entrer un choix : '),
+read(Choix),Choix>0,Choix=<4, appel(Choix).
+
+appel(1):- plateau_depart(P), write(P), !.
+appel(2):- plateau_depart(P), write(P), !.
+appel(4):-write('Au revoir!'), abort.
+appel(_):-write('Vous avez mal choisi').
+
+
+/*_____________INITIALISATION PLATEAU _____________*/
 %Choisit un élément aléatoire dans une liste
 nth1Rand([X|R], Y):-
 	length([X|R], Long),
@@ -50,6 +66,8 @@ initMarche([A, B, C, D, E, F, G, H, I]) :-
 	initPile(H, P, Q),
 	initPile(I, Q, _).
 
+/*_____________ ACCESSEURS _____________*/
+
 %Récupère le marché, P = Plateau, +M = marché
 getMarche(P, M) :-
 	nth1(1, P, M).
@@ -77,16 +95,37 @@ plateau_depart([Marche, Bourse, Trader, [], []]) :-
 	initTrader(Trader).
 
 
+/*_____________ JOUER COUP _____________*/
 
-boucle_menu_depart:-menu_depart, !.
-menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
-write('2. Partie contre un bot'),nl,
-write('3. Partie bot contre bot'),nl,
-write('4. Quitter'),nl,
-write('Entrer un choix : '),
-read(Choix),Choix>0,Choix=<4, appel(Choix).
+%SECURITE DEPLACEMENT (1,2 ou 3)
 
-appel(1):- plateau_depart(P), write(P), !.
-appel(2):- plateau_depart(P), write(P), !.
-appel(4):-write('Au revoir!'), abort.
-appel(_):-write('Vous avez mal choisi').
+test(X):- integer(X),!, X>0,X<4,!.
+test(_) :- write('entre 1 et 3!!').
+lire(X) :- nl,
+write('De combien voulez vous avancer ? (1,2,3)'), nl,
+read(X),nl,test(X),
+X=1,  nl.
+boucle_lire(X):-
+repeat,lire(X), !.
+
+
+%NB_PILES <= 2
+coup_possible(P, Coup):-
+length(MARCHE,Res), Res>2,!,
+boucle_lire(Coup),
+newPosTrader(Coup,P, New_pos),
+write(new_pos).
+
+
+%RENVOIE LA NOUVELLE POSITION TRADER
+newPosTrader(C,P, New_pos):-
+getMarche(P, M),
+
+
+%L=nombre de piles restantes
+length(M,L),
+
+getTrader(P, T),
+Res is (C+T) mod L.
+
+
