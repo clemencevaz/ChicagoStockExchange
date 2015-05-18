@@ -1,7 +1,7 @@
 
 
 /*_________________MENU DE DEPART_________________ */
-boucle_menu_depart:- menu_depart, !.
+boucle_menu_depart: menu_depart, !.
 menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
