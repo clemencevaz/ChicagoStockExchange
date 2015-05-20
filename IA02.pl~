@@ -128,13 +128,13 @@ getTrader(P,T),
 length(M,L),
 Res is (C+T) mod L.
 
+%remplacer la valeur de pos_trader par Res dans P
 
 
 
-Trader(P, T),
 
-
-/*FONCTIONS DE SERVICE */
+/*FONCTIONS DE SERVICE*/
+%à utiliser à chaque pop.
 flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
