@@ -121,14 +121,20 @@ write(new_pos).
 
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,P, New_pos):-
+newPosTrader(C,P, New_P):-
 getMarche(P, M),
-
-
+getTrader(P,T),
 %L=nombre de piles restantes
 length(M,L),
-
-getTrader(P, T),
 Res is (C+T) mod L.
 
+%remplacer la valeur de pos_trader par Res dans P
 
+
+
+
+/*FONCTIONS DE SERVICE*/
+%à utiliser à chaque pop.
+flatten([],[]).
+flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
+flatten([T|Q],[T|Res]):-flatten(Q,Res).

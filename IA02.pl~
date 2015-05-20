@@ -1,7 +1,7 @@
 
 
 /*_________________MENU DE DEPART_________________ */
-boucle_menu_depart: menu_depart, !.
+boucle_menu_depart:- menu_depart, !.
 menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
@@ -121,14 +121,20 @@ write(new_pos).
 
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,P, New_pos):-
+newPosTrader(C,P, New_P):-
 getMarche(P, M),
-
-
+getTrader(P,T),
 %L=nombre de piles restantes
 length(M,L),
-
-getTrader(P, T),
 Res is (C+T) mod L.
 
 
+
+
+Trader(P, T),
+
+
+/*FONCTIONS DE SERVICE */
+flatten([],[]).
+flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
+flatten([T|Q],[T|Res]):-flatten(Q,Res).
