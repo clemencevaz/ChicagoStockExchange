@@ -1,4 +1,7 @@
-
+/*_________________MAIN_________________*/
+main:-
+boucle_menu_depart,
+coup_possible([Marche, Bourse, Trader,_,_], Coup).
 
 /*_________________MENU DE DEPART_________________ */
 boucle_menu_depart:- menu_depart, !.
@@ -69,7 +72,7 @@ initMarche([A, B, C, D, E, F, G, H, I]) :-
 	initPile(I, Q, _).
 
 %Initialisation du plateau de type [Marche, Bourse, Trader, [Reserve J1], [Reserve J2]])
-plateau_depart([Marche, Bourse, Trader, [], []]) :-
+plateau_depart([Marche, Bourse, Trader,_,_]) :-
 initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
@@ -105,36 +108,47 @@ test(X) :- integer(X),!, X>0,X<4,!.
 test(_) :- write('entre 1 et 3!!').
 lire(X) :- nl,
 write('De combien voulez vous avancer ? (1,2,3)'), nl,
-read(X),nl,test(X),
-X=1,  nl.
+read(X), test(X),nl.
 
 boucle_lire(X):-
 repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-coup_possible(P, Coup):-
-length(MARCHE,Res), Res>2,!,
+coup_possible([Marche,Bourse,Trader,Joueur1,Joueur2],Coup):-
+length(Marche,Res), Res>2,!,
 boucle_lire(Coup),
-newPosTrader(Coup,P, New_pos),
-write(new_pos).
-
+newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP).
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,P, New_P):-
-getMarche(P, M),
-getTrader(P,T),
-%L=nombre de piles restantes
-length(M,L),
-Res is (C+T) mod L.
+newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
+	length(M,Len),
+	NewT is (C+T) mod Len.
 
-%remplacer la valeur de pos_trader par Res dans P
+%AFFICHE VOISINS
+retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
+	length(M,Len),
+	VoisinG	is (T-1) mod Len,
+	VoisinD is(T+1) mod Len,
+	pop(VoisinG,M,NewM),
+	pop(VoisinD,M,NewM),
+	flatten(M,newM).
+	write('Lequel voulez vous vendre ? (1 ou 2)'),
+	read(Choix).
+
 
 
 
 
 /*FONCTIONS DE SERVICE*/
-%à utiliser à chaque pop.
+
+%supprime les listes vides du marché
 flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
+
+%retire la tete de la pile de rang n et l'affiche
+pop(n,M,NewM):-
+	nth1(n, M, [T|Q]),
+	NewM is Q,
+	write(T).
