@@ -10,9 +10,9 @@ write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
 write('4. Quitter'),nl,
 write('Entrer un choix : '),
-read(Choix),Choix>0,Choix=<4, appel(Choix), Choix=4,nl.
+read(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), write(P), !.
+appel(1):- plateau_depart(P), affiche_plateau(P), coup_possible(P, C), write(P), !.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -72,7 +72,7 @@ initMarche([A, B, C, D, E, F, G, H, I]) :-
 	initPile(I, Q, _).
 
 %Initialisation du plateau de type [Marche, Bourse, Trader, [Reserve J1], [Reserve J2]])
-plateau_depart([Marche, Bourse, Trader,_,_]) :-
+plateau_depart([Marche, Bourse, Trader,[],[]]) :-
 initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
@@ -104,7 +104,7 @@ getReserveJ2(P, R) :-
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
 
-test(X) :- integer(X),!, X>0,X<4,!.
+test(X) :- integer(X),X>0,X<4,!.
 test(_) :- write('entre 1 et 3!!').
 lire(X) :- nl,
 write('De combien voulez vous avancer ? (1,2,3)'), nl,
@@ -132,17 +132,37 @@ retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	VoisinD is(T+1) mod Len,
 	pop(VoisinG,M,NewM),
 	pop(VoisinD,M,NewM),
-	flatten(M,newM).
+	%flatten(M,newM),
 	write('Lequel voulez vous vendre ? (1 ou 2)'),
 	read(Choix).
 
+% Affichage du plateau de jeu %
+affiche_pile([], _,_).
+affiche_pile([P|L], Trader, Trader) :-
+	write(Trader),
+	write(' '),
+	write(P),
+	writeln(' <= Trader'),
+	Tmp is Trader+1,
+	affiche_pile(L, Trader, Tmp).
 
+affiche_pile([P|L], Trader, Ct) :-
+	write(Ct),
+	write(' '),
+	writeln(P),
+	Tmp is Ct+1,
+	affiche_pile(L, Trader, Tmp).
+
+affiche_plateau(P) :-
+	getMarche(P, M),
+	getTrader(P, T),
+	affiche_pile(M, T, 1).
 
 
 
 /*FONCTIONS DE SERVICE*/
 
-%supprime les listes vides du marché
+%supprime les listes vides du marchï¿½
 flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
