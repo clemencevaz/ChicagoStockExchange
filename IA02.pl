@@ -118,7 +118,9 @@ repeat,lire(X), !.
 coup_possible([Marche,Bourse,Trader,Joueur1,Joueur2],Coup):-
 length(Marche,Res), Res>2,!,
 boucle_lire(Coup),
-newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP).
+newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
+retournevoisins(NewP,NewP2).
+
 
 %RENVOIE LA NOUVELLE POSITION TRADER
 newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
@@ -130,9 +132,10 @@ retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
-	pop(VoisinG,M,NewM),
-	pop(VoisinD,M,NewM),
-	%flatten(M,newM),
+	pop(VoisinG, VoisinD, M,Tmp),
+
+	%flatten(Tmp2,Tmp3),
+	%NewM is Tmp3,
 	write('Lequel voulez vous vendre ? (1 ou 2)'),
 	read(Choix).
 
@@ -167,8 +170,27 @@ flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
 
-%retire la tete de la pile de rang n et l'affiche
-pop(n,M,NewM):-
-	nth1(n, M, [T|Q]),
-	write(T),
-	NewM is Q.
+%retire la tete de la pile M de rang N1 et N2 et l'affiche
+pop(N1,N2,M,NewM):-
+	nth1(N1, M, [T1|Q1]),
+	write('1)'),
+	write(T1),
+	nl,
+	nth1(N2, M, [T2|Q2]),
+	write('2)'),
+	write(T2),
+	nl,
+	replace(M, N1, Q1, Tmp),
+	replace(Tmp, N2, Q2, NewM),!.
+
+
+%replace(L,I,X,Res) : remplace l'élement de rang I de la liste L par X
+replace([_|Q], 1, X, [X|Q]).
+replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
+replace(L, _, _, L).
+
+
+% addReserve(Jou, R, X, Res) ajoute à la Reserve R du joueur en cours
+% Jou la marchandise Jet
+addReserve(1, J1, X, [X|J1]).
+addReserve(2, J2, X, [X|J2]).
