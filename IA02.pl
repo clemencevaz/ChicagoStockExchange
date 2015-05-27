@@ -12,7 +12,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '),
 read(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), coup_possible(P, C), write(P), !.
+appel(1):- plateau_depart(P), affiche_plateau(P), coup_possible(P, C), write(C), !.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -77,29 +77,6 @@ initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
 
-/*_____________ ACCESSEURS _____________*/
-
-%Récupère le marché, P = Plateau, +M = marché
-getMarche(P, M) :-
-	nth1(1, P, M).
-
-%Récupère la bourse, P = Plateau, +B = bourse
-getBourse(P, B) :-
-	nth1(2, P, B).
-
-%Récupère le trader, P = Plateau, +T = trader
-getTrader(P, T) :-
-	nth1(3, P, T).
-
-%Récupère la réserve du joueur 1, P = plateau, +R = réserve
-getReserveJ1(P, R) :-
-	nth1(4, P, R).
-
-%Récupère la réserve du joueur 2, P = plateau, +R = réserve
-getReserveJ2(P, R) :-
-	nth1(5, P, R).
-
-
 /*_____________ JOUER COUP _____________*/
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
@@ -115,29 +92,33 @@ repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-coup_possible([Marche,Bourse,Trader,Joueur1,Joueur2],Coup):-
+coup_possible([Marche,Bourse,Trader,Joueur1,Joueur2],[_, Deplacement, Garde, Jete]):-
 length(Marche,Res), Res>2,!,
-boucle_lire(Coup),
-newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
-retournevoisins(NewP,NewP2).
+boucle_lire(Deplacement),
+newPosTrader(Deplacement,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
+retournevoisins(NewP, [Garde, Jete]).
 
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
+newPosTrader(C,[M,_,T,_,_],[M,B,NewT,J1,J2]):-
 	length(M,Len),
 	NewT is (C+T) mod Len.
 
 %AFFICHE VOISINS
-retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
+retournevoisins([M,B,T,J1,J2], [Garder, Jeter]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
-	pop(VoisinG, VoisinD, M,Tmp),
+	tetePile(VoisinG, VoisinD, M, T1, T2),
 
 	%flatten(Tmp2,Tmp3),
 	%NewM is Tmp3,
 	write('Lequel voulez vous vendre ? (1 ou 2)'),
-	read(Choix).
+	read(Choix),
+	traiter(Choix, T1, T2, Garder, Jeter).
+
+traiter(1, T1, T2, T2, T1).
+traiter(2, T1, T2, T1, T2).
 
 % Affichage du plateau de jeu %
 affiche_pile([], _,_).
@@ -196,16 +177,16 @@ pop(N1,N2,M,NewM):-
 	replace(Tmp, N2, Q2, NewM),!.
 
 
-%replace(L,I,X,Res) : remplace l'�lement de rang I de la liste L par X
+%replace(L,I,X,Res) : remplace l'�lement de rang I de la liste L par X
 replace([_|Q], 1, X, [X|Q]).
 replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
 
 
-% addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
+% addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
 % Jou la marchandise Jet
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
 
 
-%jouer_coup : m�j du Trader, m�j du joueur, m�j R�serves, m�j Bourse
+%jouer_coup : m�j du Trader, m�j du joueur, m�j R�serves, m�j Bourse
