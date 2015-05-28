@@ -8,7 +8,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '),
 read(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, C), write(P), !.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1, NewP), write(NewP), !.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -87,14 +87,15 @@ repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-jouer_coup([Marche,Bourse,Trader,Joueur1,Joueur2],Joueur):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
+	   [NewMarche,NewBourse,NewTrader,NewResJ1,NewResJ2]):-
 length(Marche,Res), Res>2,!,
 boucle_lire(Deplacement),
-newPosTrader(Deplacement,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
-retournevoisins(NewP,NewP2).
-write('Lequel voulez vous vendre ? (1 ou 2)'),
-read(Choix).
-
+newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
+newMarche(NewPos,NewMarch),
+write('Lequel voulez vous garder ? (1 ou 2)'),
+read(Choix),
+Joueur==1.
 
 % addReserve(Jou, R, X, Res) ajoute à la Reserve R du joueur en cours
 % Jou la marchandise Jet
@@ -107,7 +108,7 @@ newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
 	NewT is (C+T) mod Len.
 
 %AFFICHE VOISINS
-retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
+newMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
@@ -131,10 +132,8 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_plateau(P) :-
-	getMarche(P, M),
-	getTrader(P, T),
-	affiche_pile(M, T, 1).
+affiche_plateau([Marche,Bourse,Trader,ResJ1,ResJ2]) :-
+	affiche_pile(Marche, Trader, 1).
 
 
 
@@ -142,8 +141,11 @@ affiche_plateau(P) :-
 
 %supprime les listes vides du marchï¿½
 flatten([],[]).
-flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
+flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concat(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
+concat([], L,L).
+concat([T|Q], L, [T|Res]):-concat(Q,L,Res).
+
 
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
 pop(N1,N2,M,NewM):-
