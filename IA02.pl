@@ -170,18 +170,6 @@ flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
 
-%affiche tete des piles adjacentes
-tetePile(N1,N2,M,T1,T2):-
-	nth1(N1, M, [T1|Q1]),
-	write('1)'),
-	write(T1),
-	nl,
-	nth1(N2, M, [T2|Q2]),
-	write('2)'),
-	write(T2),
-	nl.
-
-
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
 pop(N1,N2,M,NewM):-
 	nth1(N1, M, [T1|Q1]),
@@ -206,6 +194,3 @@ replace(L, _, _, L).
 % Jou la marchandise Jet
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
-
-
-%jouer_coup : màj du Trader, màj du joueur, màj Réserves, màj Bourse
