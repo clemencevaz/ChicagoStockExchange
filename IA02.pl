@@ -1,7 +1,3 @@
-/*_________________MAIN_________________*/
-main:-
-boucle_menu_depart,
-coup_possible([Marche, Bourse, Trader,_,_], Coup).
 
 /*_________________MENU DE DEPART_________________ */
 boucle_menu_depart:- menu_depart, !.
@@ -12,7 +8,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '),
 read(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), coup_possible(P, C), write(P), !.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, C), write(P), !.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -77,33 +73,9 @@ initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
 
-/*_____________ ACCESSEURS _____________*/
-
-%Récupère le marché, P = Plateau, +M = marché
-getMarche(P, M) :-
-	nth1(1, P, M).
-
-%Récupère la bourse, P = Plateau, +B = bourse
-getBourse(P, B) :-
-	nth1(2, P, B).
-
-%Récupère le trader, P = Plateau, +T = trader
-getTrader(P, T) :-
-	nth1(3, P, T).
-
-%Récupère la réserve du joueur 1, P = plateau, +R = réserve
-getReserveJ1(P, R) :-
-	nth1(4, P, R).
-
-%Récupère la réserve du joueur 2, P = plateau, +R = réserve
-getReserveJ2(P, R) :-
-	nth1(5, P, R).
-
-
 /*_____________ JOUER COUP _____________*/
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
-
 test(X) :- integer(X),X>0,X<4,!.
 test(_) :- write('entre 1 et 3!!').
 lire(X) :- nl,
@@ -115,12 +87,17 @@ repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-coup_possible([Marche,Bourse,Trader,Joueur1,Joueur2],Coup):-
+jouer_coup([Marche,Bourse,Trader,Joueur1,Joueur2],Joueur):-
 length(Marche,Res), Res>2,!,
-boucle_lire(Coup),
-newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
+boucle_lire(Deplacement),
+newPosTrader(Deplacement,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
 retournevoisins(NewP,NewP2).
 
+
+% addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
+% Jou la marchandise Jet
+addReserve(1, J1, X, [X|J1]).
+addReserve(2, J2, X, [X|J2]).
 
 %RENVOIE LA NOUVELLE POSITION TRADER
 newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
@@ -189,8 +166,3 @@ replace([_|Q], 1, X, [X|Q]).
 replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
 
-
-% addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
-% Jou la marchandise Jet
-addReserve(1, J1, X, [X|J1]).
-addReserve(2, J2, X, [X|J2]).
