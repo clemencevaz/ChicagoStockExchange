@@ -27,16 +27,16 @@ repeat,lire(X), !.
 
 %NB_PILES <= 2
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
-	   [NewMarche,NewBourse,NewTrader,NewResJ1,NewResJ2]):-
+	   NewPlateau):-
 length(Marche,Res), Res>2,!,
 boucle_lire(Deplacement),
 newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-newMarche(NewPos,NewMarch),
+newMarche(NewPos,NewPlateau),
 write('Lequel voulez vous garder ? (1 ou 2)'),
 read(Choix),
 Joueur==1.
 
-% addReserve(Jou, R, X, Res) ajoute à la Reserve R du joueur en cours
+% addReserve(Jou, R, X, Res) ajoute ï¿½ la Reserve R du joueur en cours
 % Jou la marchandise Jet
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
@@ -51,8 +51,8 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
-	pop(VoisinG, VoisinD, M,Tmp),
-	flatten(Tmp2,NewM).
+	pop(VoisinG, VoisinD, M, NewM).
+	%flatten(Tmp2,NewM).
 
 % Affichage du plateau de jeu %
 affiche_pile([], _,_).
@@ -100,7 +100,7 @@ pop(N1,N2,M,NewM):-
 	replace(Tmp, N2, Q2, NewM),!.
 
 
-%replace(L,I,X,Res) : remplace l'élement de rang I de la liste L par X
+%replace(L,I,X,Res) : remplace l'ï¿½lement de rang I de la liste L par X
 replace([_|Q], 1, X, [X|Q]).
 replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
