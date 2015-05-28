@@ -1,5 +1,5 @@
 
-/*_________________MENU DE DEPART_________________ */
+/*____________________________MENU DE DEPART___________________________ */
 boucle_menu_depart:- menu_depart, !.
 menu_depart:-nl, write('1. Partie Ã  2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
@@ -13,7 +13,7 @@ appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
 
-/*_____________ JOUER COUP _____________*/
+/*_______________________________INTERFACE _____________________________*/
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
 test(X) :- integer(X),X>0,X<4,!.
@@ -25,15 +25,14 @@ read(X), test(X),nl.
 boucle_lire(X):-
 repeat,lire(X), !.
 
-%NB_PILES <= 2
+/*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
 	   NewPlateau):-
 length(Marche,Res), Res>2,!,
 boucle_lire(Deplacement),
 newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
 newMarche(NewPos,NewPlateau),
-write('Lequel voulez vous garder ? (1 ou 2)'),
-read(Choix),
+
 Joueur==1.
 
 % addReserve(Jou, R, X, Res) ajoute ï¿½ la Reserve R du joueur en cours
@@ -46,15 +45,16 @@ newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
 	length(M,Len),
 	NewT is (C+T) mod Len.
 
-%AFFICHE VOISINS
+%RENVOIE NOUVEAU MARCHE
 newMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
-	pop(VoisinG, VoisinD, M, NewM).
-	%flatten(Tmp2,NewM).
+	pop(VoisinG, VoisinD, M, NewM,M1,M2),
+	write('Lequel voulez vous garder ? (1 ou 2)'),
+	read(Choix).
 
-% Affichage du plateau de jeu %
+/*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
 	write(Trader),
@@ -76,9 +76,9 @@ affiche_plateau([Marche,Bourse,Trader,ResJ1,ResJ2]) :-
 
 
 
-/*FONCTIONS DE SERVICE*/
+/*_______________________FONCTIONS DE SERVICE__________________________*/
 
-%supprime les listes vides du marchï¿½
+%supprime les listes vides du marché
 flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concat(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
@@ -87,7 +87,7 @@ concat([T|Q], L, [T|Res]):-concat(Q,L,Res).
 
 
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
-pop(N1,N2,M,NewM):-
+pop(N1,N2,M,NewM,T1,T2):-
 	nth1(N1, M, [T1|Q1]),
 	write('1)'),
 	write(T1),
@@ -97,7 +97,8 @@ pop(N1,N2,M,NewM):-
 	write(T2),
 	nl,
 	replace(M, N1, Q1, Tmp),
-	replace(Tmp, N2, Q2, NewM),!.
+	replace(Tmp, N2, Q2, Tmp2),
+	delete(Tmp2, [], NewM),!.
 
 
 %replace(L,I,X,Res) : remplace l'ï¿½lement de rang I de la liste L par X
