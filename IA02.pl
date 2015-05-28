@@ -1,14 +1,14 @@
 
 /*____________________________MENU DE DEPART___________________________ */
-boucle_menu_depart:- menu_depart, !.
+boucle_menu_depart:- repeat( menu_depart), !.
 menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
 write('4. Quitter'),nl,
 write('Entrer un choix : '),
-read(Choix),Choix>0,Choix=<4, appel(Choix),nl.
+read(Choix),integer(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1, NewP), write(NewP), !.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1, NewP), write(NewP),!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -43,13 +43,35 @@ newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
 	NewT is (C+T) mod Len.
 
 %RENVOIE NOUVEAU MARCHE
-newMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2], Joueur):-
+newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
-	read(Choix).
+	read(Choix),
+	newReserve(Choix,M1,M2,J1,NewJ1).
+
+
+newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
+	length(M,Len),
+	VoisinG	is (T-1) mod Len,
+	VoisinD is(T+1) mod Len,
+	pop(VoisinG, VoisinD, M, NewM,M1,M2),
+	write('Lequel voulez vous garder ? (1 ou 2)'),
+	read(Choix),
+	newReservebis(Choix,M1,M2,J2,NewJ2).
+
+newReserve(1,M1,M2,J1,[M1|J1]).
+newReserve(2,M1,M2,J1,[M2|J1]).
+
+newReservebis(1,M1,M2,J2,[M1|J2]).
+newReservebis(2,M1,M2,J2,[M2|J2]).
+
+
+
+
+
 
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
