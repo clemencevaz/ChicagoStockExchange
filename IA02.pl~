@@ -1,5 +1,5 @@
 
-/*_________________MENU DE DEPART_________________ */
+/*____________________________MENU DE DEPART___________________________ */
 boucle_menu_depart:- menu_depart, !.
 menu_depart:-nl, write('1. Partie Ã  2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
@@ -13,7 +13,7 @@ appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
 
-/*_________________INTERFACE _______________________*/
+/*_______________________________INTERFACE _____________________________*/
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
 test(X) :- integer(X),X>0,X<4,!.
@@ -25,7 +25,7 @@ read(X), test(X),nl.
 boucle_lire(X):-
 repeat,lire(X), !.
 
-/*_________________ JOUER COUP _______________________*/
+/*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
 	   NewPlateau):-
 length(Marche,Res), Res>2,!,
@@ -36,7 +36,6 @@ newMarche(NewPos,NewPlateau),
 Joueur==1.
 
 % addReserve(Jou, R, X, Res) ajoute ï¿½ la Reserve R du joueur en cours
-% Jou la marchandise Jet
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
 
@@ -54,7 +53,7 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix).
 
-/*_________________ AFFICHAGE PLATEAU DE JEU _______________________*/
+/*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
 	write(Trader),
@@ -76,7 +75,7 @@ affiche_plateau([Marche,Bourse,Trader,ResJ1,ResJ2]) :-
 
 
 
-/*_______________________FONCTIONS DE SERVICE_______________________*/
+/*_______________________FONCTIONS DE SERVICE__________________________*/
 
 %supprime les listes vides du marché
 flatten([],[]).

@@ -26,17 +26,14 @@ boucle_lire(X):-
 repeat,lire(X), !.
 
 /*_____________________________ JOUER COUP _____________________________*/
-jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
-	   NewPlateau):-
-length(Marche,Res), Res>2,!,
-boucle_lire(Deplacement),
-newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-newMarche(NewPos,NewPlateau),
-
-Joueur==1.
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,NewPlateau):-
+	length(Marche,Res), Res>2,!,
+	boucle_lire(Deplacement),
+	newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
+	newMarche(NewPos,NewPlateau),
+	Joueur==1.
 
 % addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
-% Jou la marchandise Jet
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
 
