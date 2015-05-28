@@ -87,11 +87,17 @@ repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-jouer_coup([Marche,Bourse,Trader,Joueur1,Joueur2],Joueur):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,
+	   [NewMarche,NewBourse,NewTrader,NewResJ1,NewResJ2]):-
 length(Marche,Res), Res>2,!,
 boucle_lire(Deplacement),
-newPosTrader(Deplacement,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
-retournevoisins(NewP,NewP2).
+newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewP),
+newMarche(NewP,NewP2).
+write('Lequel voulez vous garder ? (1 ou 2)'),
+read(Choix),
+Joueur==1,
+addReserve(Joueur,.
+
 
 
 % addReserve(Jou, R, X, Res) ajoute à la Reserve R du joueur en cours
@@ -105,16 +111,12 @@ newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
 	NewT is (C+T) mod Len.
 
 %AFFICHE VOISINS
-retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
+NewMarche([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
 	pop(VoisinG, VoisinD, M,Tmp),
-
-	%flatten(Tmp2,Tmp3),
-	%NewM is Tmp3,
-	write('Lequel voulez vous vendre ? (1 ou 2)'),
-	read(Choix).
+	flatten(Tmp2,NewM).
 
 % Affichage du plateau de jeu %
 affiche_pile([], _,_).
@@ -144,8 +146,11 @@ affiche_plateau(P) :-
 
 %supprime les listes vides du marchï¿½
 flatten([],[]).
-flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concatener(TF,QF,Res).
+flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concat(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
+concat([], L,L).
+concat([T|Q], L, [T|Res]):-concat(Q,L,Res).
+
 
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
 pop(N1,N2,M,NewM):-

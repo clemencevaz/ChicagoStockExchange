@@ -87,11 +87,13 @@ repeat,lire(X), !.
 
 
 %NB_PILES <= 2
-jouer_coup([Marche,Bourse,Trader,Joueur1,Joueur2],Coup):-
+jouer_coup([Marche,Bourse,Trader,Joueur1,Joueur2],Joueur):-
 length(Marche,Res), Res>2,!,
-boucle_lire(Coup),
-newPosTrader(Coup,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
+boucle_lire(Deplacement),
+newPosTrader(Deplacement,[Marche,Bourse,Trader,Joueur1,Joueur2],NewP),
 retournevoisins(NewP,NewP2).
+write('Lequel voulez vous vendre ? (1 ou 2)'),
+read(Choix).
 
 
 % addReserve(Jou, R, X, Res) ajoute à la Reserve R du joueur en cours
@@ -110,11 +112,7 @@ retournevoisins([M,B,T,J1,J2], [NewM,B,T,J1,J2]):-
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
 	pop(VoisinG, VoisinD, M,Tmp),
-
-	%flatten(Tmp2,Tmp3),
-	%NewM is Tmp3,
-	write('Lequel voulez vous vendre ? (1 ou 2)'),
-	read(Choix).
+	flatten(Tmp2,NewM).
 
 % Affichage du plateau de jeu %
 affiche_pile([], _,_).
