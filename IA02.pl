@@ -80,7 +80,8 @@ newReservebis(1,M1,M2,J2,[M1|J2],M2).
 newReservebis(2,_,M2,J2,[M2|J2],M2).
 
 
-%Récupère la valeur d'une marchandise dans la bourse
+% getValeurMarchandise(M,B,V)
+% Recupere la valeur V d'une marchandise M dans la bourse B
 getValeurMarchandise(M, [[M|[Q]]|Q2], Q):-!.
 getValeurMarchandise(M, [_|Q], V):- getValeurMarchandise(M, Q, V).
 
@@ -208,10 +209,11 @@ initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
 
-/*_____________FIN DU JE_____________
+/*_____________FIN DU JE_____________*/
 %Calcul somme J1
+% somme([[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],[ble,ble,cacao],N).
 somme(_,[],0).
-somme(Bourse,[T|Q],N):-getsomme(
+somme(B,[T|Q],N):-getValeurMarchandise(T,B,R), somme(B,Q,N1),  N is N1+R.
 
 %joueur_gagnant([TBourse|Qbourse],[],0,0).
-*/
+
