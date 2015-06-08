@@ -59,14 +59,24 @@ newMarche(T, [NewM,_,T,J1,NewJ2], 2):-
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	newReservebis(Choix,M1,M2,J2,NewJ2).
+	newReservebis(Choix,M1,M2,J2,NewJ2),
+	traiterMarchandise(Choix, M1, M2, MG, MV).
 
 newReserve(1,M1,M2,J1,[M1|J1]).
 newReserve(2,M1,M2,J1,[M2|J1]).
 
 newReservebis(1,M1,M2,J2,[M1|J2]).
 newReservebis(2,M1,M2,J2,[M2|J2]).
+	
+%Renvoie la marchandise gardée (MG) et la marchandise vendue (MV) selon le choix de l'utilisateur
+traiterMarchandise(1, M1, M2, M1, M2).
+traiterMarchandise(2, M1, M2, M2, M1).
 
+%Récupère ou modifie la valeur d'une marchandise dans la bourse
+valeurBourse(M, [[M|[Q]]|Q2], Q, VN):- Q is VN.
+valeurBourse(M, [[M|[Q]]|Q2], Q):-!.
+valeurBourse(M, [_|Q], V):- valeurBourse(M, Q, V).
+valeurBourse(M, [_|Q], V, VN):- valeurBourse(M, Q, V, VN).
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
@@ -92,7 +102,7 @@ affiche_plateau([Marche,Bourse,Trader,ResJ1,ResJ2]) :-
 
 /*_______________________FONCTIONS DE SERVICE__________________________*/
 
-%supprime les listes vides du march�
+%supprime les listes vides du march�
 flatten([],[]).
 flatten([T|Q],Res):-flatten(T,TF),!,flatten(Q,QF),concat(TF,QF,Res).
 flatten([T|Q],[T|Res]):-flatten(Q,Res).
