@@ -8,7 +8,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '),
 read(Choix),integer(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1, NewP), write(NewP),!.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -26,12 +26,20 @@ boucle_lire(X):-
 repeat,lire(X), !.
 
 /*_____________________________ JOUER COUP _____________________________*/
-jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours,NewPlateau):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-	newMarche(NewPos,NewPlateau, JoueurenCours),
-	Joueur is 1.
+	newMarche([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),
+	write(ResJ1),nl,
+	write(ResJ2),nl,
+	write(NewPlateau),
+	change(JoueurenCours,NewJoueur),
+	jouer_coup(NewPlateau,NewJoueur).
+
+%Changement Joueur
+change(1,2).
+change(2,1).
 
 % addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
 addReserve(1, J1, X, [X|J1]).
@@ -43,7 +51,7 @@ getPosTrader(D,[M,_,T,_,_],NewT):-
 	NewT is (D+T) mod Len.
 
 %RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
-newMarche(T, [NewM,_,T,NewJ1,_], 1):-
+newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
@@ -52,7 +60,7 @@ newMarche(T, [NewM,_,T,NewJ1,_], 1):-
 	read(Choix),
 	newReserve(Choix,M1,M2,J1,NewJ1).
 
-newMarche(T, [NewM,_,T,J1,NewJ2], 2):-
+newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
@@ -61,11 +69,11 @@ newMarche(T, [NewM,_,T,J1,NewJ2], 2):-
 	read(Choix),
 	newReservebis(Choix,M1,M2,J2,NewJ2).
 
-newReserve(1,M1,M2,J1,[M1|J1]).
-newReserve(2,M1,M2,J1,[M2|J1]).
+newReserve(1,M1,_,J1,[M1|J1]).
+newReserve(2,_,M2,J1,[M2|J1]).
 
-newReservebis(1,M1,M2,J2,[M1|J2]).
-newReservebis(2,M1,M2,J2,[M2|J2]).
+newReservebis(1,M1,_,J2,[M1|J2]).
+newReservebis(2,_,M2,J2,[M2|J2]).
 
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
