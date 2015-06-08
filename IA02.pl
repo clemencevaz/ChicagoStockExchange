@@ -30,10 +30,7 @@ jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-	newMarche([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),
-	write(ResJ1),nl,
-	write(ResJ2),nl,
-	write(NewPlateau),
+	newMarche([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
 	change(JoueurenCours,NewJoueur),
 	jouer_coup(NewPlateau,NewJoueur).
 
@@ -83,7 +80,6 @@ newReservebis(1,M1,M2,J2,[M1|J2],M2).
 newReservebis(2,_,M2,J2,[M2|J2],M2).
 
 
-
 %Récupère la valeur d'une marchandise dans la bourse
 getValeurMarchandise(M, [[M|[Q]]|Q2], Q):-!.
 getValeurMarchandise(M, [_|Q], V):- getValeurMarchandise(M, Q, V).
@@ -96,6 +92,8 @@ setValeurMarchandise(M, [T|Q], V, [T|B]):- setValeurMarchandise(M, Q, V, B),!.
 % Réimplémentation du modulo (pour la fin de plateau)
 modulo(X,Y,Z):- X > Y, Z is X mod Y,!.
 modulo(X,_,X).
+
+
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
@@ -116,7 +114,7 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_plateau([Marche,Bourse,Trader,ResJ1,ResJ2]) :-
+affiche_plateau([Marche,_,Trader,_,_]) :-
 	affiche_pile(Marche, Trader, 1).
 
 
@@ -209,3 +207,11 @@ plateau_depart([Marche, Bourse, Trader,[],[]]) :-
 initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
+
+/*_____________FIN DU JE_____________
+%Calcul somme J1
+somme(_,[],0).
+somme(Bourse,[T|Q],N):-getsomme(
+
+%joueur_gagnant([TBourse|Qbourse],[],0,0).
+*/
