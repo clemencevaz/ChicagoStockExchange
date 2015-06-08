@@ -26,24 +26,24 @@ boucle_lire(X):-
 repeat,lire(X), !.
 
 /*_____________________________ JOUER COUP _____________________________*/
-jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,NewPlateau):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours,NewPlateau):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
-	newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-	newMarche(NewPos,NewPlateau, Joueur),
-	Joueur==1.
+	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
+	newMarche(NewPos,NewPlateau, JoueurenCours),
+	Joueur is 1.
 
 % addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
+getPosTrader(D,[M,_,T,_,_],NewT):-
 	length(M,Len),
-	NewT is (C+T) mod Len.
+	NewT is (D+T) mod Len.
 
-%RENVOIE NOUVEAU MARCHE
-newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
+%RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
+newMarche(T, [NewM,_,T,NewJ1,_], 1):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
@@ -52,8 +52,7 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	read(Choix),
 	newReserve(Choix,M1,M2,J1,NewJ1).
 
-
-newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
+newMarche(T, [NewM,_,T,J1,NewJ2], 2):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,

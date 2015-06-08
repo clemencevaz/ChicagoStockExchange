@@ -29,21 +29,22 @@ repeat,lire(X), !.
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,NewPlateau):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
-	newPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
+	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
 	newMarche(NewPos,NewPlateau, Joueur),
-	Joueur==1.
+	Joueur is 1.
 
 % addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
 addReserve(1, J1, X, [X|J1]).
 addReserve(2, J2, X, [X|J2]).
 
 %RENVOIE LA NOUVELLE POSITION TRADER
-newPosTrader(C,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
+getPosTrader(D,[M,B,T,J1,J2],[M,B,NewT,J1,J2]):-
 	length(M,Len),
-	NewT is (C+T) mod Len.
+	NewT is (D+T) mod Len,
+	write(NewT).
 
 %RENVOIE NOUVEAU MARCHE
-newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
+newMarche([M,B,T,J1,J2], [NewM2,B,T,NewJ1,J2], 1):-
 	length(M,Len),
 	VoisinG	is (T-1) mod Len,
 	VoisinD is(T+1) mod Len,
@@ -51,7 +52,6 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
 	newReserve(Choix,M1,M2,J1,NewJ1).
-
 
 newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	length(M,Len),
@@ -67,11 +67,6 @@ newReserve(2,M1,M2,J1,[M2|J1]).
 
 newReservebis(1,M1,M2,J2,[M1|J2]).
 newReservebis(2,M1,M2,J2,[M2|J2]).
-
-
-
-
-
 
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
