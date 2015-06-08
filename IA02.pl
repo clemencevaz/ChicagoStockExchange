@@ -97,6 +97,21 @@ modulo(X,_,X).
 
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
+affiche_bourse(Bourse) :-
+	writeln('Bourse:'),
+	affiche_marchandise(Bourse).
+
+affiche_marchandise([]).
+affiche_marchandise([[M|[V]]|Q]) :-
+	nl,
+	write(M),
+	write(' : '),
+	write(V),
+	affiche_marchandise(Q).
+
+affiche_pile(Marche, Trader) :-
+	affiche_pile(Marche, Trader, 1),!.
+
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
 	write(Trader),
@@ -106,8 +121,6 @@ affiche_pile([P|L], Trader, Trader) :-
 	Tmp is Trader+1,
 	affiche_pile(L, Trader, Tmp).
 
-
-
 affiche_pile([P|L], Trader, Ct) :-
 	write(Ct),
 	write(' '),
@@ -115,8 +128,9 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_plateau([Marche,_,Trader,_,_]) :-
-	affiche_pile(Marche, Trader, 1).
+affiche_plateau([Marche,Bourse,Trader,_,_]) :-
+	affiche_pile(Marche, Trader),
+	affiche_bourse(Bourse).
 
 
 
