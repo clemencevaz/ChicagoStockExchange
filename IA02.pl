@@ -69,11 +69,6 @@ newReservebis(1,M1,M2,J2,[M1|J2]).
 newReservebis(2,M1,M2,J2,[M2|J2]).
 
 
-
-
-
-
-
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
@@ -125,12 +120,6 @@ pop(N1,N2,M,NewM,T1,T2):-
 replace([_|Q], 1, X, [X|Q]).
 replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
-
-
-
-
-
-
 
 
 

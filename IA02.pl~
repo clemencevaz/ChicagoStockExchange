@@ -128,12 +128,6 @@ replace(L, _, _, L).
 
 
 
-
-
-
-
-
-
 /*_____________INITIALISATION PLATEAU _____________*/
 %Choisit un élément aléatoire dans une liste
 nth1Rand([X|R], Y):-
