@@ -48,13 +48,16 @@ addReserve(2, J2, X, [X|J2]).
 %RENVOIE LA NOUVELLE POSITION TRADER
 getPosTrader(D,[M,_,T,_,_],NewT):-
 	length(M,Len),
-	NewT is (D+T) mod Len.
+	TmpT is D+T,
+	modulo(TmpT, Len, NewT).
 
 %RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
 newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	length(M,Len),
-	VoisinG	is (T-1) mod Len,
-	VoisinD is(T+1) mod Len,
+	TmpGauche is T-1,
+	modulo(TmpGauche, Len, VoisinG),
+	TmpDroite is T+1,
+	modulo(TmpDroite, Len, VoisinD),
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
@@ -62,8 +65,10 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 
 newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	length(M,Len),
-	VoisinG	is (T-1) mod Len,
-	VoisinD is(T+1) mod Len,
+	TmpGauche is T-1,
+	modulo(TmpGauche, Len, VoisinG),
+	TmpDroite is T+1,
+	modulo(TmpDroite, Len, VoisinD),
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
@@ -79,11 +84,18 @@ newReservebis(2,_,M2,J2,[M2|J2],M2).
 
 
 
-%Récupère ou modifie la valeur d'une marchandise dans la bourse
-valeurBourse(M, [[M|[Q]]|Q2], Q, VN):- Q is VN.
-valeurBourse(M, [[M|[Q]]|Q2], Q):-!.
-valeurBourse(M, [_|Q], V):- valeurBourse(M, Q, V).
-valeurBourse(M, [_|Q], V, VN):- valeurBourse(M, Q, V, VN).
+%Récupère la valeur d'une marchandise dans la bourse
+getValeurMarchandise(M, [[M|[Q]]|Q2], Q):-!.
+getValeurMarchandise(M, [_|Q], V):- getValeurMarchandise(M, Q, V).
+
+%Modifie la valeur d'une marchandise dans la bourse
+%setValeurMarchandise(+Marchandise, +BourseActuelle, +Valeur, ?NouvelleBourse)
+setValeurMarchandise(M, [[M|[Q]]|Q2], V, [[M|[V]]|Q2]):-!.
+setValeurMarchandise(M, [T|Q], V, [T|B]):- setValeurMarchandise(M, Q, V, B),!.
+
+% Réimplémentation du modulo (pour la fin de plateau)
+modulo(X,Y,Z):- X > Y, Z is X mod Y,!.
+modulo(X,_,X).
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_pile([], _,_).
@@ -94,6 +106,8 @@ affiche_pile([P|L], Trader, Trader) :-
 	writeln(' <= Trader'),
 	Tmp is Trader+1,
 	affiche_pile(L, Trader, Tmp).
+
+
 
 affiche_pile([P|L], Trader, Ct) :-
 	write(Ct),
@@ -136,8 +150,6 @@ pop(N1,N2,M,NewM,T1,T2):-
 replace([_|Q], 1, X, [X|Q]).
 replace([T|Q], I, X, [T|R]):- I > 0, NI is I-1, replace(Q, NI, X, R), !.
 replace(L, _, _, L).
-
-
 
 /*_____________INITIALISATION PLATEAU _____________*/
 %Choisit un élément aléatoire dans une liste
