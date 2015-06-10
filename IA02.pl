@@ -8,7 +8,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '), nl,
 read(Choix),integer(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1,NewP),gagnant(NewP,G),nl,write('Le gagnant est :'),write(G),!.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),gagnant(P,G),nl,write('Le gagnant est :'),write(G),!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -26,21 +26,17 @@ boucle_lire(X):-
 repeat,lire(X), !.
 
 /*_____________________________ JOUER COUP _____________________________*/
-jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours,P):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-	newMarche([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
+	newMarcheBourseRes([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
 	change(JoueurenCours,NewJoueur),
-	jouer_coup(NewPlateau,NewJoueur,NewPlateau).
+	jouer_coup(NewPlateau,NewJoueur).
 
 %Changement Joueur
 change(1,2).
 change(2,1).
-
-% addReserve(Jou, R, X, Res) ajoute � la Reserve R du joueur en cours
-addReserve(1, J1, X, [X|J1]).
-addReserve(2, J2, X, [X|J2]).
 
 %RENVOIE LA NOUVELLE POSITION TRADER
 getPosTrader(D,[M,_,T,_,_],NewT):-
@@ -49,7 +45,7 @@ getPosTrader(D,[M,_,T,_,_],NewT):-
 	modulo(TmpT, Len, NewT).
 
 %RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
-newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
+newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,T,NewJ1,J2], 1):-
 	length(M,Len),
 	TmpGauche is T-1,
 	modulo(TmpGauche, Len, VoisinG),
@@ -58,9 +54,10 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,NewJ1,J2], 1):-
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	newReserve(Choix,M1,M2,J1,NewJ1).
+	addReserve(Choix,M1,M2,J1,NewJ1,Vendue).
+	%,setValeurMarchandise(Vendue, B, NewB).
 
-newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
+newMarcheBourseRes([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	length(M,Len),
 	TmpGauche is T-1,
 	modulo(TmpGauche, Len, VoisinG),
@@ -69,16 +66,12 @@ newMarche([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	newReservebis(Choix,M1,M2,J2,NewJ2,Vendue).
+	addReserve(Choix,M1,M2,J2,NewJ2,Vendue).
+	%,setValeurMarchandise(Vendue,B,NewB).
 
-%Ajout à la réserve du Joueur2
-newReserve(1,M1,_,J1,[M1|J1]).
-newReserve(2,_,M2,J1,[M2|J1]).
-
-%Ajout à la reserve du Joueur1
-newReservebis(1,M1,M2,J2,[M1|J2],M2).
-newReservebis(2,_,M2,J2,[M2|J2],M2).
-
+%Ajout a� la reserve du Joueur
+addReserve(1,M1,M2,ResenCours,[M1|ResenCours],M2).
+addReserve(2,M1,M2,ResenCours,[M2|ResenCours],M1).
 
 % getValeurMarchandise(M,B,V)
 % Recupere la valeur V d'une marchandise M dans la bourse B
