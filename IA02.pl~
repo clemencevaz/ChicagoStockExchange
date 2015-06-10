@@ -1,6 +1,6 @@
 
 /*____________________________MENU DE DEPART___________________________ */
-boucle_menu_depart:- repeat( menu_depart), !.
+%boucle_menu_depart:- repeat( menu_depart), !.
 menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
@@ -8,7 +8,7 @@ write('4. Quitter'),nl,
 write('Entrer un choix : '),
 read(Choix),integer(Choix),Choix>0,Choix=<4, appel(Choix),nl.
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),!.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1,NewP),gagnant(NewP,G),nl,write('Le gagnant est :'),write(G),!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(_):-write('Vous avez mal choisi').
@@ -26,13 +26,13 @@ boucle_lire(X):-
 repeat,lire(X), !.
 
 /*_____________________________ JOUER COUP _____________________________*/
-jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
+jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours,P):-
 	length(Marche,Res), Res>2,!,
 	boucle_lire(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
 	newMarche([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
 	change(JoueurenCours,NewJoueur),
-	jouer_coup(NewPlateau,NewJoueur).
+	jouer_coup(NewPlateau,NewJoueur,NewPlateau).
 
 %Changement Joueur
 change(1,2).
@@ -82,12 +82,12 @@ newReservebis(2,_,M2,J2,[M2|J2],M2).
 
 % getValeurMarchandise(M,B,V)
 % Recupere la valeur V d'une marchandise M dans la bourse B
-getValeurMarchandise(M, [[M|[Q]]|Q2], Q):-!.
+getValeurMarchandise(M, [[M|[Q]]|_], Q):-!.
 getValeurMarchandise(M, [_|Q], V):- getValeurMarchandise(M, Q, V).
 
 %Modifie la valeur d'une marchandise dans la bourse
 %setValeurMarchandise(+Marchandise, +BourseActuelle, +Valeur, ?NouvelleBourse)
-setValeurMarchandise(M, [[M|[Q]]|Q2], V, [[M|[V]]|Q2]):-!.
+setValeurMarchandise(M, [[M|[_]]|Q2], V, [[M|[V]]|Q2]):-!.
 setValeurMarchandise(M, [T|Q], V, [T|B]):- setValeurMarchandise(M, Q, V, B),!.
 
 % Réimplémentation du modulo (pour la fin de plateau)
@@ -209,11 +209,13 @@ initMarche(Marche),
 initBourse(Bourse),
 initTrader(Trader).
 
-/*_____________FIN DU JE_____________*/
+/*_____________FIN DU JEU_____________*/
 %Calcul somme J1
 % somme([[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],[ble,ble,cacao],N).
 somme(_,[],0).
-somme(B,[T|Q],N):-getValeurMarchandise(T,B,R), N is N1+R, somme(B,Q,N1).
+somme(B,[T|Q],N):-getValeurMarchandise(T,B,R), somme(B,Q,N1),  N is N1+R.
 
-%joueur_gagnant([TBourse|Qbourse],[],0,0).
+
+gagnant([_,B,_,J1,J2],1):-somme(B,J1,SJ1),somme(B,J2,SJ2),SJ1>SJ2,!.
+gagnant([_,B,_,J1,J2],2):-somme(B,J1,SJ1),somme(B,J2,SJ2),SJ2>SJ1,!.
 
