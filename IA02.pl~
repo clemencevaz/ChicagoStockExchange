@@ -54,9 +54,8 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,T,NewJ1,J2], 1):-
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	addReserve(Choix,M1,M2,J1,NewJ1,Vendue),
-	%setValeurMarchandise(Vendue, B, NewB)
-	.
+	addReserve(Choix,M1,M2,J1,NewJ1,Vendue).
+	%,setValeurMarchandise(Vendue, B, NewB).
 
 newMarcheBourseRes([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	length(M,Len),
@@ -67,18 +66,12 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
 	pop(VoisinG, VoisinD, M, NewM,M1,M2),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	addReservebis(Choix,M1,M2,J2,NewJ2,Vendue),
-	%setValeurMarchandise(Vendue,B,NewB),
-	.
+	addReserve(Choix,M1,M2,J2,NewJ2,Vendue).
+	%,setValeurMarchandise(Vendue,B,NewB).
 
-%Ajout à la réserve du Joueur2
-addReserve(1,M1,M2,J1,[M1|J1],M2).
-addReserve(2,M1,M2,J1,[M2|J1],M1).
-
-%Ajout à la reserve du Joueur1
-addReservebis(1,M1,M2,J2,[M1|J2],M2).
-addReservebis(2,M1,M2,J2,[M2|J2],M1).
-
+%Ajout a� la reserve du Joueur
+addReserve(1,M1,M2,ResenCours,[M1|ResenCours],M2).
+addReserve(2,M1,M2,ResenCours,[M2|ResenCours],M1).
 
 % getValeurMarchandise(M,B,V)
 % Recupere la valeur V d'une marchandise M dans la bourse B
@@ -128,9 +121,13 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_plateau([Marche,Bourse,Trader,_,_]) :-
+affiche_reserve(L):-nl,nl,write('Reserve Joueur 1:'), write(L),nl.
+
+affiche_plateau([Marche,Bourse,Trader,Res1,Res2]) :-
 	affiche_pile(Marche, Trader),
-	affiche_bourse(Bourse).
+	affiche_bourse(Bourse),
+	affiche_reserve(Res1),
+	affiche_reserve(Res2).
 
 
 

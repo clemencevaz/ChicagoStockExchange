@@ -121,9 +121,13 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_plateau([Marche,Bourse,Trader,_,_]) :-
+affiche_reserve(X,L):-nl,nl,write('Reserve Joueur'),write(X),write(' : '), write(L),nl.
+
+affiche_plateau([Marche,Bourse,Trader,Res1,Res2]) :-
 	affiche_pile(Marche, Trader),
-	affiche_bourse(Bourse).
+	affiche_bourse(Bourse),
+	affiche_reserve(1,Res1),
+	affiche_reserve(2,Res2).
 
 
 
