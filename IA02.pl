@@ -1,34 +1,34 @@
 
 /*____________________________MENU DE DEPART___________________________ */
-%boucle_menu_depart:- repeat( menu_depart), !.
-menu_depart:-nl, write('1. Partie à 2 joueurs'),nl,
+liredepart(Choix):-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
 write('4. Quitter'),nl,
 write('Entrer un choix : '), nl,
-read(Choix),integer(Choix),Choix>0,Choix=<4, appel(Choix),nl.
+read(Choix),appel(Choix),!.
+liredepart(Choix):-nl,write('Entre 1 et 4 !!'), nl,liredepart(Choix).
 
 appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),gagnant(P,G),nl,write('Le gagnant est :'),write(G),!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
-appel(_):-write('Vous avez mal choisi').
+appel(3).
 
 /*_______________________________INTERFACE _____________________________*/
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
-test(X) :- integer(X),X>0,X<4,!.
-test(_) :- write('entre 1 et 3!!').
-lire(X) :- nl,
-write('De combien voulez vous avancer ? (1,2,3)'), nl,
-read(X), test(X),nl.
 
-boucle_lire(X):-
-repeat,lire(X), !.
+liredeplacement(X) :- write('De combien voulez vous avancer ? (1,2,3)'), nl,
+read(X), test(X), !.
+liredeplacement(X) :- liredeplacement(X).
+
+test(1).
+test(2).
+test(3).
 
 /*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), Res>2,!,
-	boucle_lire(Deplacement),
+	liredeplacement(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
 	newMarcheBourseRes([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
 	change(JoueurenCours,NewJoueur),
