@@ -1,13 +1,12 @@
 
 /*____________________________MENU DE DEPART___________________________ */
-liredepart :- liredepart(Choix).
-liredepart(Choix):-nl, write('1. Partie Ã  2 joueurs'),nl,
+liredepart:-nl, write('1. Partie Ã  2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
 write('4. Quitter'),nl,
 write('Entrer un choix : '), nl,
 read(Choix),appel(Choix),!.
-liredepart(Choix):-nl,write('Entre 1 et 4 !!'), nl,liredepart(Choix).
+liredepart:-nl,write('Entre 1 et 4 !!'), nl,liredepart.
 
 appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),nl,!.
 appel(2):- plateau_depart(P), write(P), !.
@@ -29,8 +28,10 @@ test(3):-!.
 /*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), (Res>2 ->
+	repeat,
 	liredeplacement(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
+	affiche_pile(Marche, NewPos),
 	newMarcheBourseRes([Marche,Bourse,NewPos,ResJ1,ResJ2],[NewM,NewB,TmpPos,NewJ1,NewJ2], JoueurenCours),
 	%getPosTrader(Deplacement,[NewM,NewB,Trader,NewJ1,NewJ2],TmpPos),
 	affiche_plateau([NewM, NewB, TmpPos, NewJ1, NewJ2]),
@@ -60,8 +61,7 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,NewJ1,J2], 1):-
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
 	addReserve(Choix,M1,M2,J1,NewJ1,Vendue),
-	setValeurMarchandise(Vendue, B, NewB),
-	write('Trader:: '),write(NewT), nl.
+	setValeurMarchandise(Vendue, B, NewB).
 
 newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,J1,NewJ2], 2):-
 	length(M,Len),
@@ -75,8 +75,7 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,J1,NewJ2], 2):-
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
 	addReserve(Choix,M1,M2,J2,NewJ2,Vendue),
-	setValeurMarchandise(Vendue,B,NewB),
-	write('Trader:: '),write(T), nl.
+	setValeurMarchandise(Vendue,B,NewB).
 
 %Ajout a  la reserve du Joueur
 addReserve(1,M1,M2,ResenCours,[M1|ResenCours],M2).
@@ -100,7 +99,8 @@ modulo(X,_,X).
 
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_bourse(Bourse) :-
-	writeln('Bourse:'),
+	nl,
+	nl, write('--------------- Bourse ---------------'),
 	affiche_marchandise(Bourse).
 
 affiche_marchandise([]).
@@ -112,8 +112,9 @@ affiche_marchandise([[M|[V]]|Q]) :-
 	affiche_marchandise(Q).
 
 affiche_pile(Marche, Trader) :-
-	affiche_pile(Marche, Trader, 1),!.
-
+	nl,
+	write('------------------ Piles de jeu -------------------'),nl,
+	affiche_pile(Marche, Trader, 1),nl,!.
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
 	write(Trader),
@@ -133,10 +134,15 @@ affiche_pile([P|L], Trader, Ct) :-
 affiche_reserve(X,L):-nl,nl,write('Reserve Joueur'),write(X),write(' : '), write(L),nl.
 
 affiche_plateau([Marche,Bourse,Trader,Res1,Res2]) :-
+	nl,write('============== PLATEAU DE JEU ==================='),nl, write('================================================'),nl,
 	affiche_pile(Marche, Trader),
+
 	affiche_bourse(Bourse),
+
+	nl, write('--------------- Reserves ---------------'),
 	affiche_reserve(1,Res1),
-	affiche_reserve(2,Res2).
+	affiche_reserve(2,Res2),
+	 write('================================================'),nl,nl.
 
 
 
@@ -152,6 +158,7 @@ concat([T|Q], L, [T|Res]):-concat(Q,L,Res).
 
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
 pop(N1,N2,M,NewM,T1,T2, Vide):-
+	write('Marchandises enlevées:'),nl,
 	nth1(N1, M, [T1|Q1]),
 	write('1)'),
 	write(T1),
@@ -164,7 +171,6 @@ pop(N1,N2,M,NewM,T1,T2, Vide):-
 	delete(Tmp, [], TmpM),
 	length(TmpM, TmpL),
 	length(M, OldL),
-	write('clair'),nl,
 	replace(TmpM, N2, Q2, Tmp2),
 	delete(Tmp2, [], NewM),
 	(TmpL == OldL -> Vide is 0; Vide is 1),
