@@ -17,14 +17,27 @@ appel(3).
 
 %SECURITE DEPLACEMENT (1,2 ou 3)
 
-liredeplacement(X) :- write('De combien voulez vous avancer ? (1,2,3)'), nl,
-read(X), test(X), !.
-liredeplacement(X) :- nl,write('erreur'),nl,liredeplacement(X).
+liredeplacement(X) :-
+	write('De combien voulez vous avancer ? (1,2,3)'), nl,
+	read(X),
+	liredep(X), !.
+liredeplacement(X) :-
+	nl,write('ENTRE 1, 2 ET 3 !!!!!'),nl,
+	liredeplacement(X).
 
-test(1):-!.
-test(2):-!.
-test(3):-!.
+liredep(1):-!.
+liredep(2):-!.
+liredep(3):-!.
 
+%SECURITE CHOIX MARCHANDISE (1 ou 2)
+liremarchandise(X) :-
+	write('Lequel voulez vous garder ? (1 ou 2)'),
+	nl,read(X),
+	liremarch(X),!.
+liremarchandise(X) :- nl,write('ENTRE 1 ET 2 !!!!!'),nl,liremarchandise(X).
+
+liremarch(1):-!.
+liremarch(2):-!.
 /*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche,Res), (Res>2 ->
@@ -57,9 +70,8 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,NewJ1,J2], 1):-
 	TmpDroite is T+1,
 	modulo(TmpDroite, Len, VoisinD),
 	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	liremarchandise(Choix),
 	(Vide==1 -> NewT is T-1; NewT is T),
-	write('Lequel voulez vous garder ? (1 ou 2)'),
-	read(Choix),
 	addReserve(Choix,M1,M2,J1,NewJ1,Vendue),
 	setValeurMarchandise(Vendue, B, NewB).
 
@@ -71,9 +83,8 @@ newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,J1,NewJ2], 2):-
 	TmpDroite is T+1,
 	modulo(TmpDroite, Len, VoisinD),
 	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	liremarchandise(Choix),
 	(Vide==1 -> NewT is T-1; NewT is T),
-	write('Lequel voulez vous garder ? (1 ou 2)'),
-	read(Choix),
 	addReserve(Choix,M1,M2,J2,NewJ2,Vendue),
 	setValeurMarchandise(Vendue,B,NewB).
 
@@ -100,7 +111,7 @@ modulo(X,_,X).
 /*____________________ AFFICHAGE PLATEAU DE JEU _______________________*/
 affiche_bourse(Bourse) :-
 	nl,
-	nl, write('--------------- Bourse ---------------'),
+	nl, write('---------------- Bourse ----------------'),
 	affiche_marchandise(Bourse).
 
 affiche_marchandise([]).
@@ -113,7 +124,7 @@ affiche_marchandise([[M|[V]]|Q]) :-
 
 affiche_pile(Marche, Trader) :-
 	nl,
-	write('------------------ Piles de jeu -------------------'),nl,
+	write('----------------- Piles de jeu -----------------'),nl,
 	affiche_pile(Marche, Trader, 1),nl,!.
 affiche_pile([], _,_).
 affiche_pile([P|L], Trader, Trader) :-
@@ -131,10 +142,10 @@ affiche_pile([P|L], Trader, Ct) :-
 	Tmp is Ct+1,
 	affiche_pile(L, Trader, Tmp).
 
-affiche_reserve(X,L):-nl,nl,write('Reserve Joueur'),write(X),write(' : '), write(L),nl.
+affiche_reserve(X,L):-nl,write('Reserve Joueur'),write(X),write(' : '), write(L),nl.
 
 affiche_plateau([Marche,Bourse,Trader,Res1,Res2]) :-
-	nl,write('============== PLATEAU DE JEU ==================='),nl, write('================================================'),nl,
+	nl,write('============== PLATEAU DE JEU ==================='),nl, write('================================================='),nl,
 	affiche_pile(Marche, Trader),
 
 	affiche_bourse(Bourse),
