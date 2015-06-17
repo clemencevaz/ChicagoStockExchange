@@ -1,5 +1,6 @@
 
 /*____________________________MENU DE DEPART___________________________ */
+liredepart :- liredepart(Choix).
 liredepart(Choix):-nl, write('1. Partie à 2 joueurs'),nl,
 write('2. Partie contre un bot'),nl,
 write('3. Partie bot contre bot'),nl,
@@ -8,7 +9,7 @@ write('Entrer un choix : '), nl,
 read(Choix),appel(Choix),!.
 liredepart(Choix):-nl,write('Entre 1 et 4 !!'), nl,liredepart(Choix).
 
-appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),gagnant(P,G),nl,write('Le gagnant est :'),write(G),!.
+appel(1):- plateau_depart(P), affiche_plateau(P), jouer_coup(P, 1),nl,!.
 appel(2):- plateau_depart(P), write(P), !.
 appel(4):-write('Au revoir!'), abort.
 appel(3).
@@ -19,20 +20,22 @@ appel(3).
 
 liredeplacement(X) :- write('De combien voulez vous avancer ? (1,2,3)'), nl,
 read(X), test(X), !.
-liredeplacement(X) :- liredeplacement(X).
+liredeplacement(X) :- nl,write('erreur'),nl,liredeplacement(X).
 
-test(1).
-test(2).
-test(3).
+test(1):-!.
+test(2):-!.
+test(3):-!.
 
 /*_____________________________ JOUER COUP _____________________________*/
 jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
-	length(Marche,Res), Res>2,!,
+	length(Marche,Res), (Res>2 ->
 	liredeplacement(Deplacement),
 	getPosTrader(Deplacement,[Marche,Bourse,Trader,ResJ1,ResJ2],NewPos),
-	newMarcheBourseRes([Marche,Bourse,NewPos,ResJ1,ResJ2],NewPlateau, JoueurenCours),	affiche_plateau(NewPlateau),
+	newMarcheBourseRes([Marche,Bourse,NewPos,ResJ1,ResJ2],[NewM,NewB,TmpPos,NewJ1,NewJ2], JoueurenCours),
+	%getPosTrader(Deplacement,[NewM,NewB,Trader,NewJ1,NewJ2],TmpPos),
+	affiche_plateau([NewM, NewB, TmpPos, NewJ1, NewJ2]),
 	change(JoueurenCours,NewJoueur),
-	jouer_coup(NewPlateau,NewJoueur).
+	jouer_coup([NewM,NewB,TmpPos,NewJ1,NewJ2],NewJoueur); gagnant([Marche,Bourse,Trader,ResJ1,ResJ2], G), nl, write('Le gagnant est le joueur '), write(G)).
 
 %Changement Joueur
 change(1,2).
@@ -45,29 +48,35 @@ getPosTrader(D,[M,_,T,_,_],NewT):-
 	modulo(TmpT, Len, NewT).
 
 %RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
-newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,T,NewJ1,J2], 1):-
+newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,NewJ1,J2], 1):-
 	length(M,Len),
-	TmpGauche is T-1,
+	(T==1 -> TmpGauche is Len;
+	TmpGauche is T-1),
 	modulo(TmpGauche, Len, VoisinG),
 	TmpDroite is T+1,
 	modulo(TmpDroite, Len, VoisinD),
-	pop(VoisinG, VoisinD, M, NewM,M1,M2),
+	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	(Vide==1 -> NewT is T-1; NewT is T),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	addReserve(Choix,M1,M2,J1,NewJ1,Vendue).
-	%,setValeurMarchandise(Vendue, B, NewB).
+	addReserve(Choix,M1,M2,J1,NewJ1,Vendue),
+	setValeurMarchandise(Vendue, B, NewB),
+	write('Trader:: '),write(NewT), nl.
 
-newMarcheBourseRes([M,B,T,J1,J2], [NewM,B,T,J1,NewJ2], 2):-
+newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,J1,NewJ2], 2):-
 	length(M,Len),
-	TmpGauche is T-1,
+	(T==1 -> TmpGauche is Len;
+	TmpGauche is T-1),
 	modulo(TmpGauche, Len, VoisinG),
 	TmpDroite is T+1,
 	modulo(TmpDroite, Len, VoisinD),
-	pop(VoisinG, VoisinD, M, NewM,M1,M2),
+	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	(Vide==1 -> NewT is T-1; NewT is T),
 	write('Lequel voulez vous garder ? (1 ou 2)'),
 	read(Choix),
-	addReserve(Choix,M1,M2,J2,NewJ2,Vendue).
-	%,setValeurMarchandise(Vendue,B,NewB).
+	addReserve(Choix,M1,M2,J2,NewJ2,Vendue),
+	setValeurMarchandise(Vendue,B,NewB),
+	write('Trader:: '),write(T), nl.
 
 %Ajout a� la reserve du Joueur
 addReserve(1,M1,M2,ResenCours,[M1|ResenCours],M2).
@@ -80,8 +89,8 @@ getValeurMarchandise(M, [_|Q], V):- getValeurMarchandise(M, Q, V).
 
 %Modifie la valeur d'une marchandise dans la bourse
 %setValeurMarchandise(+Marchandise, +BourseActuelle, +Valeur, ?NouvelleBourse)
-setValeurMarchandise(M, [[M|[_]]|Q2], V, [[M|[V]]|Q2]):-!.
-setValeurMarchandise(M, [T|Q], V, [T|B]):- setValeurMarchandise(M, Q, V, B),!.
+setValeurMarchandise(M, [[M|[OldV]]|Q2], [[M|[V]]|Q2]):- V is OldV-1,!.
+setValeurMarchandise(M, [T|Q],[T|B]):- setValeurMarchandise(M, Q, B),!.
 
 % Réimplémentation du modulo (pour la fin de plateau)
 modulo(X,Y,Z):- X > Y, Z is X mod Y,!.
@@ -142,7 +151,7 @@ concat([T|Q], L, [T|Res]):-concat(Q,L,Res).
 
 
 %retire la tete de la pile M de rang N1 et N2 et l'affiche
-pop(N1,N2,M,NewM,T1,T2):-
+pop(N1,N2,M,NewM,T1,T2, Vide):-
 	nth1(N1, M, [T1|Q1]),
 	write('1)'),
 	write(T1),
@@ -152,8 +161,14 @@ pop(N1,N2,M,NewM,T1,T2):-
 	write(T2),
 	nl,
 	replace(M, N1, Q1, Tmp),
-	replace(Tmp, N2, Q2, Tmp2),
-	delete(Tmp2, [], NewM),!.
+	delete(Tmp, [], TmpM),
+	length(TmpM, TmpL),
+	length(M, OldL),
+	write('clair'),nl,
+	replace(TmpM, N2, Q2, Tmp2),
+	delete(Tmp2, [], NewM),
+	(TmpL == OldL -> Vide is 0; Vide is 1),
+	!.
 
 
 %replace(L,I,X,Res) : remplace l'�lement de rang I de la liste L par X
