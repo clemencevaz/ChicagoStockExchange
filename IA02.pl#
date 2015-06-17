@@ -274,3 +274,11 @@ coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],Dep, Joueur,[[Joueur, Dep, Ma
 getMarchandise(IndexG, IndexD, Marche, MarchG, MarchD) :-
         nth1(IndexG, Marche, [MarchG|_]),
 	nth1(IndexD, Marche, [MarchD|_]).
+simuler_coups(Plateau, Joueur,[Coup|Coups], MeilleurCoup) :-
+	simuler_coup(Plateau, Joueur, Coup, Score),
+	simuler_coups(Plateau, Joueur, Coups,
+	
+ia(Plateau, Joueur):-
+	coups_possibles(Plateau, 3, Joueur, ListeCoups),
+	simuler_coups(Plateau, Joueur, ListeCoups, MeilleurCoup),
+	jouerCoup(Plateau, Joueur, MeilleurCoup).

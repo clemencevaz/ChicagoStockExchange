@@ -63,32 +63,28 @@ getPosTrader(D,[M,_,T,_,_],NewT):-
 
 %RENVOIE NOUVEAU MARCHE,MET A JOUR RESERVE
 newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,NewJ1,J2], 1):-
-	length(M,Len),
-	(T==1 -> TmpGauche is Len;
-	TmpGauche is T-1),
-	modulo(TmpGauche, Len, VoisinG),
-	TmpDroite is T+1,
-	modulo(TmpDroite, Len, VoisinD),
+	getvoisins(M,T,VoisinG,VoisinD),
 	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	liremarchandise(Choix),
 	(Vide==1 -> NewT is T-1; NewT is T),
 	addReserve(Choix,M1,M2,J1,NewJ1,Vendue),
 	setValeurMarchandise(Vendue, B, NewB).
 
 newMarcheBourseRes([M,B,T,J1,J2], [NewM,NewB,NewT,J1,NewJ2], 2):-
+	getvoisins(M,T,VoisinG,VoisinD),
+	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
+	liremarchandise(Choix),
+	(Vide==1 -> NewT is T-1; NewT is T),
+	addReserve(Choix,M1,M2,J2,NewJ2,Vendue),
+	setValeurMarchandise(Vendue,B,NewB).
+
+getvoisins(M,T,TG,TD):-
 	length(M,Len),
 	(T==1 -> TmpGauche is Len;
 	TmpGauche is T-1),
-	modulo(TmpGauche, Len, VoisinG),
+	modulo(TmpGauche, Len, TG),
 	TmpDroite is T+1,
-	modulo(TmpDroite, Len, VoisinD),
-	pop(VoisinG, VoisinD, M, NewM,M1,M2, Vide),
-	(Vide==1 -> NewT is T-1; NewT is T),
-	repeat,
-	write('Lequel voulez vous garder ? (1 ou 2)'),
-	read(Choix),
-	member(Choix,[1,2]),
-	addReserve(Choix,M1,M2,J2,NewJ2,Vendue),
-	setValeurMarchandise(Vendue,B,NewB).
+	modulo(TmpDroite, Len, TD).
 
 %Ajout a  la reserve du Joueur
 addReserve(1,M1,M2,ResenCours,[M1|ResenCours],M2).
@@ -264,3 +260,17 @@ somme(B,[T|Q],N):-getValeurMarchandise(T,B,R), somme(B,Q,N1),  N is N1+R.
 gagnant([_,B,_,J1,J2],1):-somme(B,J1,SJ1),somme(B,J2,SJ2),SJ1>SJ2,!.
 gagnant([_,B,_,J1,J2],2):-somme(B,J1,SJ1),somme(B,J2,SJ2),SJ2>SJ1,!.
 
+/*_____________INTEL ARTIFICIELLE_____________*/
+
+%appeler avec 3
+coups_possibles(_, 0, _, []).
+coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],Dep, Joueur,[[Joueur, Dep, MarchG, MarchD]|[[Joueur, Dep, MarchD, MarchG]|Liste]]):-
+	getPosTrader(Dep, [Marche,Bourse,Trader,ResJ1,ResJ2],NewTrader),
+	getvoisins(Marche,NewTrader,G,D),
+	getMarchandise(G, D, Marche, MarchG, MarchD),
+	NewDep is Dep-1,
+	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],NewDep,Liste).
+
+getMarchandise(IndexG, IndexD, Marche, MarchG, MarchD) :-
+        nth1(IndexG, Marche, [MarchG|_]),
+	nth1(IndexD, Marche, [MarchD|_]).
