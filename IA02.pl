@@ -10,13 +10,15 @@ liredepart:-nl,write('Entre 1 et 4 !!'), nl,liredepart.
 
 appel(1):- plateau_depart(P), affiche_plateau(P), jeuHumainHumain(P, 1),nl,!.
 appel(2):- plateau_depart(P), affiche_plateau(P), jeuHumainOrdi(P, 1),!.
-appel(3):- plateau_depart(P), iafinal(P, 1, NewP), iafinal(NewP, 2, NP),!.
+appel(3):- plateau_depart(P), jeuOrdi(P, 1),!.
 appel(4):-write('Au revoir!'), abort.
 appel(3).
 
 jeuOrdi([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours) :-
 	length(Marche, Res),
-	(Res > 2 -> iafinal([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours, NewP), change(JoueurenCours, NewJoueur), jeuOrdi(NewP, NewJoueur); gagnant([Marche,Bourse,Trader,ResJ1,ResJ2], G), nl, write('Le gagnant est le joueur '), write(G)).
+	(Res > 2 -> 
+		iafinal([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours, NewP), change(JoueurenCours, NewJoueur), 
+		jeuOrdi(NewP, NewJoueur); gagnant([Marche,Bourse,Trader,ResJ1,ResJ2], G), nl, write('Le gagnant est le joueur '), write(G)).
 
 jeuHumainHumain([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche, Res),
@@ -314,6 +316,7 @@ simuler_coup([Marche,Bourse,Trader,J1,J2], [2, Deplacement, Gardee, Jetee], [New
 
 
 ajouterReserve(March, Res,[March|Res]).
+
 iafinal([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, NewPlateau):-
 	ia([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,NewPlateau),
 	affiche_plateau(NewPlateau).
@@ -321,52 +324,41 @@ iafinal([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, NewPlateau):-
 
 ia([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, PlateauTmp):-
 	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2], 3, Joueur, ListeCoups),
-	write('coup poss:'),
-	write(ListeCoups),
 	main([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,ListeCoups, MeilleurCoup),
+	write(MeilleurCoup),
 	%on joue le meilleurcoup trouve par main
-	simuler_coup([Marche,Bourse,Trader,ResJ1,ResJ2], MeilleurCoup,PlateauTmp), !.
+	simuler_coup([Marche,Bourse,Trader,ResJ1,ResJ2], MeilleurCoup,PlateauTmp).
 
 %Déroulement d'un seul coup
 %main(+ListeCoupsPossibles,)
-main(_,_,[],_,_).
-main(Plateau, Joueur, [T|Q],MeilleurCoup):- main(Plateau, Joueur, [T|Q], MeilleurCoup, 0),!.
+main(_,_,[],[],0).
+main(Plateau, Joueur, [T|Q],MeilleurCoup):- main(Plateau, Joueur, [T|Q], MeilleurCoup, MeilleurScore).
 main(Plateau, Joueur, [T|Q], MeilleurCoup, MeilleurScore):-
-	nl,write('Coup en cours: '),
-	write(T),
+	main(Plateau,Joueur,Q,MeilleurCoupTmp,MeilleurScoreTmp),
 	simuler_coup(Plateau,T,NewP),
-	affiche_plateau(NewP),
+	%affiche_plateau(NewP),
 	%Score du coup en cours
 	scoreTemporaire(NewP,Joueur,Score),
 	%Score du joueur adverse pour ce coup
 	scoreAdverse(Joueur, NewP, Res),
 	Tmp is Res-Score,
-	nl,write('Tmp:'),
-	write(Tmp),nl,
-	Difference is abs(Tmp),
-	write('diff :'),
-	write(Difference),
-	(Difference>MeilleurScore ->
-	     MeilleurScoreTmp is Difference, MeilleurCoupTmp=T, MeilleurCoup=T;
-	     MeilleurScoreTmp is MeilleurScore,MeilleurCoupTmp =MeilleurCoup),
-	%(Q == [] -> MeilleurCoup= MeilleurCoupTmp),
-	nl,write('meilleurcoupmp :'),
-	write(MeilleurCoupTmp),nl,
-	main(Plateau,Joueur,Q,MeilleurCoupTmp,MeilleurScoreTmp).
+	Difference is abs(Tmp),nl,
+	(Difference>=MeilleurScoreTmp ->
+	     MeilleurScore is Difference, MeilleurCoup=T;
+	     MeilleurScore is MeilleurScoreTmp,MeilleurCoup= MeilleurCoupTmp).
 
 scoreAdverse(Joueur,[Marche,Bourse,Trader,ResJ1,ResJ2],Res):-
 	change(Joueur, NewJoueur),
 	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],3, NewJoueur,Liste),
 	meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], NewJoueur, Liste, ListeMax),
-	max_member(Res, ListeMax),
-	write('Res ='),
-	write(Res),nl.
+	max_member(Res, ListeMax).
 
-meilleurscore(_, _, [], _).
+meilleurscore(_, _, [], []).
+
 meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, [T|Q],[Score|Liste]):-
 	simuler_coup([Marche,Bourse,Trader,ResJ1,ResJ2],T, NewPlateau),
-	write('------ Adversaire ---------'),
-	affiche_plateau(NewPlateau),
+	%write('------ Adversaire ---------'),
+	%affiche_plateau(NewPlateau),
 	scoreTemporaire(NewPlateau, Joueur, Score),
 	meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, Q, Liste).
 
