@@ -27,7 +27,14 @@ jeuHumainHumain([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 
 jeuHumainOrdi([Marche,Bourse,Trader,ResJ1,ResJ2],JoueurenCours):-
 	length(Marche, Res),
-	(Res>2 -> (JoueurenCours == 1 -> jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2], Joueurencours, NewP); iafinal([Marche,Bourse,Trader,ResJ1,ResJ2], 2, NewP)), change(Joueurencours, NewJoueur), jeuHumainOrdi(NewP, NewJoueur);  gagnant([Marche,Bourse,Trader,ResJ1,ResJ2], G), nl, write('Le gagnant est le joueur '), write(G)).
+	(Res>2 -> 
+		(JoueurenCours == 1 -> 
+			jouer_coup([Marche,Bourse,Trader,ResJ1,ResJ2], 1, NewP); 
+			iafinal([Marche,Bourse,Trader,ResJ1,ResJ2], 2, NewP)), 
+			change(JoueurenCours, NewJoueur), 
+			jeuHumainOrdi(NewP, NewJoueur);  
+
+			gagnant([Marche,Bourse,Trader,ResJ1,ResJ2], G), nl, write('Le gagnant est le joueur '), write(G)).
 
 /*_______________________________INTERFACE _____________________________*/
 
@@ -112,6 +119,8 @@ setValeurMarchandise(M, [[M|[OldV]]|Q2], [[M|[V]]|Q2]):- V is OldV-1,!.
 setValeurMarchandise(M, [T|Q],[T|B]):- setValeurMarchandise(M, Q, B),!.
 
 % Réimplémentation du modulo (pour la fin de plateau)
+modulo(6,3,1).
+module(4,2,1).
 modulo(X,Y,Z):- X > Y, Z is X mod Y,!.
 modulo(X,_,X).
 
@@ -280,7 +289,7 @@ coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],Dep, Joueur,[[Joueur, Dep, Ma
 	getvoisins(Marche,NewTrader,G,D),
 	getMarchandise(G, D, Marche, MarchG, MarchD),
 	NewDep is Dep-1,
-	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],NewDep,Joueur,Liste).
+	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2],NewDep,Joueur,Liste),!.
 
 getMarchandise(IndexG, IndexD, Marche, MarchG, MarchD) :-
         nth1(IndexG, Marche, [MarchG|_]),
@@ -300,19 +309,22 @@ pop_voisins(Marche, NewM, Voisin1, Voisin2, Vide) :-
 
 
 simuler_coup([Marche,Bourse,Trader,J1,J2], [1, Deplacement, Gardee, Jetee], [NewM,NewB,NewT,NewJ1,J2]) :-
+		write('Trader: '), write(Trader), nl,
         getPosTrader(Deplacement, [Marche, Bourse, Trader, J1, J2], NewPos),
         getvoisins(Marche, NewPos, V1, V2),
         pop_voisins(Marche, NewM, V1, V2, Vide),
         (Vide==1 -> NewT is NewPos-1; NewT is NewPos),
+        nl,write('Nouvelle position: '),write(NewT),nl,
         setValeurMarchandise(Jetee, Bourse, NewB),
         ajouterReserve(Gardee,J1,NewJ1).
 simuler_coup([Marche,Bourse,Trader,J1,J2], [2, Deplacement, Gardee, Jetee], [NewM,NewB,NewT,J1,NewJ2]) :-
         getPosTrader(Deplacement, [Marche, Bourse, Trader, J1, J2], NewPos),
+        nl,write('Nouvelle position: '),write(NewPos),nl,
         getvoisins(Marche, NewPos, V1, V2),
         pop_voisins(Marche, NewM, V1, V2, Vide),
         (Vide==1 -> NewT is NewPos-1; NewT is NewPos),
         setValeurMarchandise(Jetee, Bourse, NewB),
-	ajouterReserve(Gardee,J2,NewJ2).
+		ajouterReserve(Gardee,J2,NewJ2).
 
 
 ajouterReserve(March, Res,[March|Res]).
@@ -324,8 +336,9 @@ iafinal([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, NewPlateau):-
 
 ia([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, PlateauTmp):-
 	coups_possibles([Marche,Bourse,Trader,ResJ1,ResJ2], 3, Joueur, ListeCoups),
+	write('Liste de coups: '), write(ListeCoups),nl,
 	main([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,ListeCoups, MeilleurCoup),
-	write(MeilleurCoup),
+	write('Meilleur coup: '), write(MeilleurCoup),
 	%on joue le meilleurcoup trouve par main
 	simuler_coup([Marche,Bourse,Trader,ResJ1,ResJ2], MeilleurCoup,PlateauTmp).
 
@@ -334,18 +347,22 @@ ia([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, PlateauTmp):-
 main(_,_,[],[],0).
 main(Plateau, Joueur, [T|Q],MeilleurCoup):- main(Plateau, Joueur, [T|Q], MeilleurCoup, MeilleurScore).
 main(Plateau, Joueur, [T|Q], MeilleurCoup, MeilleurScore):-
+	nl,write('Coup en cours: '), write(T),
 	main(Plateau,Joueur,Q,MeilleurCoupTmp,MeilleurScoreTmp),
 	simuler_coup(Plateau,T,NewP),
 	%affiche_plateau(NewP),
 	%Score du coup en cours
-	scoreTemporaire(NewP,Joueur,Score),
-	%Score du joueur adverse pour ce coup
-	scoreAdverse(Joueur, NewP, Res),
-	Tmp is Res-Score,
-	Difference is abs(Tmp),nl,
-	(Difference>=MeilleurScoreTmp ->
-	     MeilleurScore is Difference, MeilleurCoup=T;
-	     MeilleurScore is MeilleurScoreTmp,MeilleurCoup= MeilleurCoupTmp).
+	scoreTemporaire([Marche,Bourse,Trader,ResJ1,ResJ2],Joueur,Score),
+	length(Marche, M),
+	(M > 2 ->
+		%Score du joueur adverse pour ce coup
+		scoreAdverse(Joueur, NewP, Res),
+		Tmp is Res-Score,
+		Difference is abs(Tmp),nl,
+		(Difference>=MeilleurScoreTmp ->
+		     MeilleurScore is Difference, MeilleurCoup=T;
+		     MeilleurScore is MeilleurScoreTmp,MeilleurCoup= MeilleurCoupTmp);
+		MeilleurScore is Score, MeilleurCoup = T,!).
 
 scoreAdverse(Joueur,[Marche,Bourse,Trader,ResJ1,ResJ2],Res):-
 	change(Joueur, NewJoueur),
@@ -356,11 +373,12 @@ scoreAdverse(Joueur,[Marche,Bourse,Trader,ResJ1,ResJ2],Res):-
 meilleurscore(_, _, [], []).
 
 meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, [T|Q],[Score|Liste]):-
+	write('Coup possible'), write(T),nl,
+	meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, Q, Liste),
 	simuler_coup([Marche,Bourse,Trader,ResJ1,ResJ2],T, NewPlateau),
-	%write('------ Adversaire ---------'),
-	%affiche_plateau(NewPlateau),
-	scoreTemporaire(NewPlateau, Joueur, Score),
-	meilleurscore([Marche,Bourse,Trader,ResJ1,ResJ2], Joueur, Q, Liste).
+	nl,write('------ Adversaire ---------'),
+	affiche_plateau(NewPlateau),
+	scoreTemporaire(NewPlateau, Joueur, Score).
 
 scoreTemporaire([_,Bourse,_,J1,_], 1, N):-
         somme(Bourse, J1, N),!.
